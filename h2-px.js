@@ -10,9 +10,6 @@
 // contoh: node ss2.txt http://127.0.0.1:8080
 // --- PROXY HANDLER ---
 // baca proxy dari file proxy.txt (1 proxy per baris, format: ip:port)
-const proxies = fs.readFileSync("proxy.txt", "utf-8")
-    .split("\n")
-    .filter(Boolean);
 // ambil proxy random dari list
 function getRandomProxy() {
     return proxies[Math.floor(Math.random() * proxies.length)];
