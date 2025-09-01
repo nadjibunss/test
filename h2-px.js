@@ -16,6 +16,58 @@
  const axios = require('axios');
  const https = require('https');
 
+ const puppeteer = require('puppeteer-extra');
+ const StealthPlugin = require('puppeteer-extra-plugin-stealth');
+ const { CookieJar } = require('tough-cookie');
+
+puppeteer.use(StealthPlugin());
+ 
+ const cookieJar = new CookieJar();
+ const parsedTarget = new URL(targetURL); // pastikan targetURL didefinisikan
+
+async function solveCloudflareChallenge(proxyAddr) {
+    const browser = await puppeteer.launch({
+        headless: true,
+        args: [
+            `--proxy-server=${proxyAddr}`,
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+            '--disable-dev-shm-usage',
+            '--disable-accelerated-2d-canvas',
+            '--no-first-run',
+            '--no-zygote',
+            '--disable-gpu'
+        ]
+    });
+
+    try {
+        const page = await browser.newPage();
+        await page.goto(parsedTarget.href, { waitUntil: 'networkidle2', timeout: 60000 });
+
+        // Tunggu sampai Cloudflare selesai
+        await page.waitForFunction(() => {
+            return !document.querySelector('.cf-browser-verification');
+        }, { timeout: 60000 });
+
+        // Ambil cookies
+        const cookies = await page.cookies();
+        cookies.forEach(cookie => {
+            cookieJar.setCookieSync(
+                `${cookie.name}=${cookie.value}; Domain=${cookie.domain}; Path=${cookie.path}; ${cookie.secure ? 'Secure' : ''}; ${cookie.httpOnly ? 'HttpOnly' : ''}`,
+                parsedTarget.href
+            );
+        });
+
+        console.log('[CLOUDFLARE] Challenge solved successfully!');
+        return cookies.map(c => `${c.name}=${c.value}`).join('; ');
+
+    } catch (error) {
+        console.error('[CLOUDFLARE] Failed to solve challenge:', error);
+        return null;
+    } finally {
+        await browser.close();
+    }
+}
  process.setMaxListeners(0);
  require("events").EventEmitter.defaultMaxListeners = 0;
  process.on('uncaughtException', function (exception) {
