@@ -4,7 +4,6 @@
 // Recommended Use Panel Or Vps
 // Can Mame 400-600K Request With 1% Blocked 1 Server With Premium Proxy 😹
 // --- IMPORT MODULE ---
-const fs = require("fs");
 const { CookieJar } = require("tough-cookie");
 
 // --- COOKIE JAR (buat simpan cookie dari Cloudflare) ---
