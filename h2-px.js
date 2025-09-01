@@ -1187,7 +1187,6 @@ const uap = [
  var proxies = readLines(args.proxyFile);
  const fakeIP = ip_spoof();
  var queryString = queryStrings[Math.floor(Math.random() * queryStrings.length)];
- const parsedTarget = url.parse(args.target);
 
  if (cluster.isMaster) {
     for (let counter = 1; counter <= args.threads; counter++) {
