@@ -12,12 +12,16 @@
 // baca proxy dari file proxy.txt (1 proxy per baris, format: ip:port)
 // ambil proxy random dari list
 function getRandomProxy() {
+    if (!proxies || proxies.length === 0) {
+        console.warn("[WARN] Proxy list kosong, tidak pakai proxy");
+        return null;
+    }
     return proxies[Math.floor(Math.random() * proxies.length)];
 }
 
 // pilih proxy pertama kali
 const proxyAddr = getRandomProxy();
-console.log("[INFO] Using proxy:", proxyAddr);
+console.log("[INFO] Using proxy:", proxyAddr || "NO PROXY");
 
  const net = require("net");
  const http2 = require("http2");
