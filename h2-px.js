@@ -3,6 +3,34 @@
 // t.me/sharingscript
 // Recommended Use Panel Or Vps
 // Can Mame 400-600K Request With 1% Blocked 1 Server With Premium Proxy 😹
+// --- IMPORT MODULE ---
+const fs = require("fs");
+const { CookieJar } = require("tough-cookie");
+
+// --- COOKIE JAR (buat simpan cookie dari Cloudflare) ---
+const cookieJar = new CookieJar();
+
+// --- TARGET URL ---
+// kalau kamu mau test ke server sendiri, ganti argumen saat jalanin node
+// contoh: node ss2.txt http://127.0.0.1:8080
+const targetURL = process.argv[2] || "http://127.0.0.1:8080";
+const parsedTarget = new URL(targetURL);
+
+// --- PROXY HANDLER ---
+// baca proxy dari file proxy.txt (1 proxy per baris, format: ip:port)
+const proxies = fs.readFileSync("proxy.txt", "utf-8")
+    .split("\n")
+    .filter(Boolean);
+
+// ambil proxy random dari list
+function getRandomProxy() {
+    return proxies[Math.floor(Math.random() * proxies.length)];
+}
+
+// pilih proxy pertama kali
+const proxyAddr = getRandomProxy();
+console.log("[INFO] Using proxy:", proxyAddr);
+
  const net = require("net");
  const http2 = require("http2");
  const tls = require("tls");
