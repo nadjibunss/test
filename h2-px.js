@@ -5,8 +5,6 @@
 // Can Mame 400-600K Request With 1% Blocked 1 Server With Premium Proxy 😹
 // --- IMPORT MODULE ---
 // --- COOKIE JAR (buat simpan cookie dari Cloudflare) ---
-const cookieJar = new CookieJar();
-
 // --- TARGET URL ---
 // kalau kamu mau test ke server sendiri, ganti argumen saat jalanin node
 // contoh: node ss2.txt http://127.0.0.1:8080
