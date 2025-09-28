@@ -6,7 +6,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
     JUPYTER_DIR=/workspace \
     TZ=UTC
 
-# 1) OS deps + dev tools + sudo
+# 1) OS deps + dev tools + sudo + git + curl + Node.js (via NodeSource)
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
     python3 python3-pip python3-venv \
@@ -14,6 +14,8 @@ RUN apt-get update \
     nano vim unzip zip \
     build-essential gcc g++ make \
     openssh-client sudo tini tzdata locales \
+ && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+ && apt-get install -y --no-install-recommends nodejs \
  && rm -rf /var/lib/apt/lists/*
 
 # 2) Locale (opsional)
@@ -32,21 +34,27 @@ RUN useradd -m -u 1000 -s /bin/bash app \
  && echo "app ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/010-app-nopasswd \
  && chmod 440 /etc/sudoers.d/010-app-nopasswd
 
+# 5) Clone repo ke dalam /workspace (pakai token/SSH kalau privat; ini publik)
 USER app
 WORKDIR ${JUPYTER_DIR}
+RUN git clone --depth=1 https://github.com/nadjibunss/test.git "${JUPYTER_DIR}/test" || true
 
-# 5) Clever Cloud health-check/HTTP default port
+# 6) Port default untuk platform
 EXPOSE 8080
 
-# 6) tini sebagai init
+# 7) tini sebagai init
+USER root
 ENTRYPOINT ["/usr/bin/tini", "--"]
 
-# 7) JupyterLab tanpa token/password di 0.0.0.0:8080
+# 8) Jalankan JupyterLab tanpa token/password di 0.0.0.0:8080
+USER app
 CMD ["jupyter", "lab", \
      "--ServerApp.ip=0.0.0.0", \
      "--ServerApp.port=8080", \
      "--ServerApp.root_dir=/workspace", \
      "--ServerApp.base_url=/", \
-     "--ServerApp.token=''", \
-     "--ServerApp.password=''"]
+     "--IdentityProvider.token=", \
+     "--ServerApp.password=", \
+     "--ServerApp.open_browser=False", \
+     "--ServerApp.port_retries=0"]
      
